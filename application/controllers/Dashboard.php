@@ -1,12 +1,12 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
-
-class Dashboard extends CI_Controller {
-
-	
-
+date_default_timezone_set("Europe/London");
+		
+class Dashboard extends CI_Controller 
+{
 	function __construct()
     {
+    	#load library and helpers 
         parent::__construct();
         $this->load->database();
 		$this->load->helper('url');
@@ -15,139 +15,478 @@ class Dashboard extends CI_Controller {
 		$this->load->library('session');
 		// $this->load->library('encrypt');
 		$this->load->model('Common_model','CM');
+		#checking user is logged in or not
 		if($this->session->userdata('login_data')=='')
 		{
 			redirect('login');
 		}
     }
 
+    # function load dashboard
 	public function index()
 	{
-		$complete_journal_data = $this->CM->getData('tb_journal');
-		//$data['journal_data_complete'] = $journal_data;
-		$data['filter_option'] = "";
-		$data['filter_value'] = "";
-		if($this->input->post('query_box'))
+		#getting session data
+		$sess=$this->session->userdata('login_data');
+		$user_uid_temp=$sess['user_uid'];
+		$where = "`user_uid_temp`='$user_uid_temp'";	
+		#get data of boolean search for logged in user
+		$sql_temp_last = $this->CM->getData('tb_temp_sql',$where,'date_time','DESC');
+		#check if single query posted
+		if($this->input->post('getSingleRecord'))
 		{
-			$filter_option = $this->input->post('filter_option');			
-			$filter_value = $this->input->post('filter_value');
-			
-			$data['filter_option'] = $filter_option;
-			$data['filter_value'] = $filter_value;
-			echo $query_box = $this->input->post('query_box');
-			echo '<br>';
-		
-			function countLetters($matches) 
-			{
-				$match1 = str_replace(')', "%')", $matches[0]);
-			  	return $match1;
-			}
-			$pattern = '/\(?.<?\)/i';
+			$sql_uid_posted = $this->input->post('getSingleRecord');
+			#getting query from tb_temp_sql based on sql id posted 
+			$sql_query_data = $this->CM->getData('tb_temp_sql',array('sql_uid'=>$sql_uid_posted));
+			$sql_query_data = $sql_query_data[0]; //get query string
+			$sql_where  = $sql_query_data->sql_where; //get sql where clause
+			$search_query = $sql_query_data->query; // get sql complete query
+			#load data from tb_journals for sql_where
+			$jorunal_data = $this->CM->getData('tb_journal',$sql_where);
+			$data['search_query'] = $search_query;
+			$sql_temp = $this->CM->getData('tb_temp_sql',$where);
+			$data['sql_temp'] = $sql_temp;
+			$data['journal_data'] = $jorunal_data; //send data into variable for sending front end view
 
-			if(strpos($query_box,'AND') || strpos($query_box,'OR') )
-			{
-				//echo 'AND';
-				$query_box = preg_replace_callback('/\b([^]]+)\b/', function ($word) {
-				      return strtolower($word[1]);
-				 }, $query_box);
-				$query_box = str_replace('[', ' `', $query_box);
-				$query_box = str_replace("]", "` like '%", $query_box);
-				
-				$where = preg_replace_callback($pattern, 'countLetters', $query_box);
-				echo $sql = "SELECT * FROM `tb_journal` WHERE ".$where;
-				die;
-				$result = $this->db->query($sql);
-				$journal_data = $result->result();
-			}
-			elseif(strpos($query_box,'NOT'))
-			{
-				//echo 'NOT';
-				$query_box = preg_replace_callback('/\b([^]]+)\b/', function ($word) {
-				      return strtolower($word[1]);
-				 }, $query_box);
-				$query_box = str_replace('not', ' not & ', $query_box);
-				$not_array = explode('not', $query_box);
-				for($i=0;$i<sizeof($not_array);$i++)
-				{
-					$text = $not_array[$i];
-					echo '<br>';
-					$where_not = "";
-					if(strpos($text, '&') !== false){
-					    $text = str_replace('[', ' `', $text);
-						$text = str_replace("]", "` NOT like '%", $text);						
-						$where_not = preg_replace_callback($pattern, 'countLetters', $text);
-					}
-					else
-					{
-						$text = str_replace('[', ' `', $text);
-						$text = str_replace("]", "` like '%", $text);						
-						$where_not = preg_replace_callback($pattern, 'countLetters', $text);
-					}
-					$not_array_new[] = $where_not;					
-				}
-				$not_array_new = implode(" ",$not_array_new);
-				
-				$where = str_replace('&', ' AND ', $not_array_new);
-				echo $sql = "SELECT * FROM `tb_journal` WHERE ".$where;die;
-				$result = $this->db->query($sql);
-				$journal_data = $result->result();
-			}
-			else
-			{
-				//echo 'EMPTY FILTER';
-				$filter_option = strtolower($filter_option);
-				$filter_option = str_replace(array( ' ', '/' ), '_', $filter_option);
-				echo $sql = "SELECT * FROM `tb_journal` WHERE `$filter_option` LIKE '%$filter_value%' ";die;
-				$query = $this->db->query($sql);
-				$result = $this->db->query($sql);
-				$journal_data = $result->result();
-			}
-			//$journal_data = $this->CM->getJournalData($filter_option,$filter_value);
-			$filtered_count = $journal_data;
-			$data['filtered_count'] = count($filtered_count);
-			$data['journal_data_count'] = count($complete_journal_data);
-			$data['journal_data'] = $filtered_count;
+		}
+		elseif($sql_temp_last)
+		{
+			#if there is last query exist then get record for last searched
+			$temp_where_sql = $sql_temp_last[0]->sql_where; 
+			
+			$data['search_query'] = $sql_temp_last[0]->query;
+			$sql_temp = $this->CM->getData('tb_temp_sql',$where);
+			$data['sql_temp'] = $sql_temp;
+			$sql = "SELECT * FROM `tb_journal` WHERE $temp_where_sql";
+			$result = $this->db->query($sql);
+			$journal_data = $result->result();
+			$data['journal_data'] = $journal_data;
+			//$data['journal_data'] = $this->CM->getAllData('tb_journal',$temp_where_sql);
 		}
 		else
 		{
-			//echo 'NO FILTER';
-			$filtered_count = array();
-			$data['filtered_count'] = count($filtered_count);
-			$data['journal_data_count'] = count($complete_journal_data);
-			$data['journal_data'] = $complete_journal_data;
-		}
-			
+			//when user logged in and nothing searched
+			$data['search_query'] = "";
+			$sql_temp = $this->CM->getData('tb_temp_sql',$where);
+			$data['sql_temp'] = $sql_temp;
+			$data['journal_data'] = $this->CM->getData('tb_journal');
+		}	
+		
 		$this->load->view('journal_records',$data);
 	}
 
-	
-	// public function dashboard()
-	// {
-	// 	$journal_data = $this->CM->getData('tb_journal');
-	// 	$data['journal_data_complete'] = $journal_data;
-	// 	$data['filter_option'] = "";
-	// 	$data['filter_value'] = "";
-	// 	if($this->input->post('filter_option'))
-	// 	{
-	// 		$filter_option = $this->input->post('filter_option');			
-	// 		$filter_value = $this->input->post('filter_value');
-			
-	// 		$data['filter_option'] = $filter_option;
-	// 		$data['filter_value'] = $filter_value;
-			
-	// 		$journal_data = $this->CM->getJournalData($filter_option,$filter_value);
-	// 		$filtered_count = $journal_data;
-	// 		//die;
-	// 	}
-	// 	else
-	// 	{
-	// 		$filtered_count = array();
-	// 	}
-	// 	$data['filtered_count'] = $filtered_count;
-	// 	$data['journal_data'] = $journal_data;	
-	// 	$this->load->view('journal_records',$data);
-	// }
+	//remove searched result 
+	public function clearQuery()
+	{
+	    $sess=$this->session->userdata('login_data');
+		$user_uid_temp=$sess['user_uid'];
+		$where = "`user_uid_temp`='$user_uid_temp'";	
+	    $this->CM->deleteData('tb_temp_sql',$where);
+	    redirect('dashboard');
+	}
 
+	//link to user guide page
+	public function userGuide()
+	{
+		$this->load->view('userguide');
+	}
+
+	// delete selected search result
+	public function deleteSearchItem()
+	{
+		$array_query = $this->input->post('checkboxValues');
+		$array_id = $this->input->post('checkboxValuesID');
+		for($i=0;$i<sizeof($array_query);$i++)
+		{
+			$sql_uid = $array_query[$i];
+			$resultRow = $this->CM->deleteData('tb_temp_sql',array('sql_uid'=>$sql_uid));
+			$del_sql = "DELETE FROM `tb_temp_sql` WHERE `sql_join_query_ids` LIKE '%$sql_uid%'";
+			$this->db->query($del_sql);	
+		}
+	}
+
+	//deleted single search result
+	public function DeleteSingleSearch()
+	{
+		$sql_uid = $this->input->post('sql_uid');
+		$resultRow = $this->CM->deleteData('tb_temp_sql',array('sql_uid'=>$sql_uid));
+		
+	}
+
+	// search query with AND boolean search for multiple checkbox
+	public function AndSearchItem()
+	{
+		$array_query = $this->input->post('checkboxValues');
+		$array_id = $this->input->post('checkboxValuesID');
+		$combined_where = "";
+		$search_query = "";
+		$sql_join_query_ids=implode(",",$array_query);
+
+		#exploding all the ids and search into database actual query and merge them into single query
+		for($i=0;$i<sizeof($array_query);$i++)
+		{
+			$sql_uid = $array_query[$i];
+			$resultRow = $this->CM->getRowData('tb_temp_sql',array('sql_uid'=>$sql_uid));
+			if($combined_where)
+			{
+				$combined_where = $combined_where.' AND ('.$resultRow->sql_where.')';
+				$search_query = $search_query.' AND #'.$array_id[$i];
+			}
+			else
+			{
+				$combined_where = '('.$resultRow->sql_where.')';
+				$search_query = '#'.$array_id[$i];
+			}	
+		}
+		#get records from journal table for that merged query
+		$sql = "SELECT * FROM `tb_journal` WHERE $combined_where";
+		$query = $this->db->query($sql);
+		$result = $this->db->query($sql);
+		$journal_data = $result->result();
+		$count = count($journal_data);
+		$sess=$this->session->userdata('login_data');
+		$user_name = $sess['user_fname'].' '.$sess['user_lname'];
+		$sql_uid = uniqid();
+		$sql_datetime = date('Y-m-d H:i:s');
+		
+		$sql_temp_data = array(
+			'sql_uid' =>$sql_uid,
+			'user_uid_temp'=>$sess['user_uid'],
+			'query'=>$search_query,
+			'sql_where'=>$combined_where,
+			'sql_query'=>$sql,
+			'sql_join_query_ids'=>$sql_join_query_ids,
+			'date_time'=>$sql_datetime,
+			'total_result'=>$count
+		);
+		#entry new query into temporary sql table
+		$this->CM->insertData('tb_temp_sql',$sql_temp_data);
+			
+			$sql_log_data = array(
+				'unique_id'=>uniqid(),
+				'query_id' =>$sql_uid,
+				'user_id'=>$sess['user_uid'],
+				'user_name'=>$user_name,
+				'query'=>$combined_where,
+				'sql_query'=>$sql,
+				'datetime_created'=>$sql_datetime,
+				'total_result'=>$count
+			);
+			#entry into activity log table
+			$this->CM->insertData('tb_activity_log_query',$sql_log_data);
+	}
+
+	// search query with OR boolean search for multiple checkbox
+	public function OrSearchItem()
+	{
+		$array_query = $this->input->post('checkboxValues');
+		$array_id = $this->input->post('checkboxValuesID');
+		
+		$combined_where = "";
+		$search_query = "";
+		$sql_join_query_ids=implode(",",$array_query);
+		for($i=0;$i<sizeof($array_query);$i++)
+		{
+			$sql_uid = $array_query[$i];
+			$resultRow = $this->CM->getRowData('tb_temp_sql',array('sql_uid'=>$sql_uid));
+			if($combined_where)
+			{
+				$combined_where = $combined_where.' OR ('.$resultRow->sql_where.')';
+				$search_query = $search_query.' OR #'.$array_id[$i];
+			}
+			else
+			{
+				$combined_where = '('.$resultRow->sql_where.')';
+				$search_query = '#'.$array_id[$i];
+			}	
+		}
+		$sql = "SELECT * FROM `tb_journal` WHERE $combined_where";
+		
+		$query = $this->db->query($sql);
+		$result = $this->db->query($sql);
+		$journal_data = $result->result();
+		$count = count($journal_data);
+		$sess=$this->session->userdata('login_data');
+		$user_name = $sess['user_fname'].' '.$sess['user_lname'];
+		$sql_uid = uniqid();
+		$sql_datetime = date('Y-m-d H:i:s');
+		
+		$sql_temp_data = array(
+			'sql_uid' =>$sql_uid,
+			'user_uid_temp'=>$sess['user_uid'],
+			'query'=>$search_query,
+			'sql_where'=>$combined_where,
+			'sql_query'=>$sql,
+			'sql_join_query_ids'=>$sql_join_query_ids,
+			'date_time'=>$sql_datetime,
+			'total_result'=>$count
+		);
+		$this->CM->insertData('tb_temp_sql',$sql_temp_data);
+			
+			$sql_log_data = array(
+				'unique_id'=>uniqid(),
+				'query_id' =>$sql_uid,
+				'user_id'=>$sess['user_uid'],
+				'user_name'=>$user_name,
+				'query'=>$combined_where,
+				'sql_query'=>$sql,
+				'datetime_created'=>$sql_datetime,
+				'total_result'=>$count
+			);
+			$this->CM->insertData('tb_activity_log_query',$sql_log_data);
+		
+	}
+
+	//get phpinfo for checking version of php
+	public function phpinfo()
+	{
+		echo phpinfo();
+	}
+
+	public function startsWith ($string, $startString)
+	{
+	    $len = strlen($startString);
+	    return (substr($string, 0, $len) === $startString);
+	}
+	
+	// search data for input from dashboard
+	public function searchItemResult()
+	{
+		if($this->input->post('search_query'))
+		{
+			$search_query = $this->input->post('search_query');	
+			$sample = $search_query;
+			$sample = strtolower($sample); #convert search string to lowercase be
+			$text = $sample;
+			$text_inside_backet = preg_match('#\[(.*?)\]#', $text, $match);
+			if(!empty($match))
+			{
+				$text_inside_backet = $match[1];
+				$text_inside_backet_replaced = str_replace(' ', "_", $text_inside_backet);
+				$new_full_text = str_replace($text_inside_backet, $text_inside_backet_replaced, $text);
+			}
+			else
+			{
+				$new_full_text = $sample;
+			}
+				
+			
+			$new_full_text =  str_replace('not', " and not ", $new_full_text);
+			$sample = $new_full_text;
+
+	    	$newquery = array();
+			$all_numbers = array();
+			if(str_contains($sample,'#') )
+			{
+				$regex = '~(#\w+)~';
+				if (preg_match_all($regex, $sample, $matches, PREG_PATTERN_ORDER)) {
+				   foreach ($matches[1] as $word) {
+				      $word_hash =  $word;
+				      $word_without_hash = explode('#', $word_hash);
+				      $all_numbers[] = $word_without_hash[1];
+				   }
+				}
+				if(str_contains($sample,'and') )
+				{
+					$between_op = ' and ';
+					$between_op_search = ' and ';
+				}
+				if(str_contains($sample,'or') )
+				{
+					$between_op = ' or ';
+					$between_op_search = ' or ';
+				}
+				if(str_contains($sample,'not') )
+				{
+					$between_op = ' and not ';
+					$between_op_search =  ' not ';
+				}
+				$sess=$this->session->userdata('login_data');
+				$user_uid_temp=$sess['user_uid'];
+				$where = "`user_uid_temp`='$user_uid_temp'";
+				$all_query = $this->CM->getData('tb_temp_sql',$where);
+			    $i=1;
+			    foreach ($all_query as $key) {
+			    	if(in_array($i, $all_numbers))
+			    	{
+			    		$array_query[] = $key->sql_uid;
+			    		$array_id[] = $i;
+			    	}
+			    	$i++;
+			    }
+			    $combined_where = "";
+				//$search_query = "";
+				$sql_join_query_ids=implode(",",$array_query);
+				for($i=0;$i<sizeof($array_query);$i++)
+				{
+					$sql_uid = $array_query[$i];
+					$resultRow = $this->CM->getRowData('tb_temp_sql',array('sql_uid'=>$sql_uid));
+					if($combined_where)
+					{
+						$combined_where = $combined_where.$between_op.'('.$resultRow->sql_where.')';
+						//$search_query = $search_query.$between_op_search.' #'.$array_id[$i];
+					}
+					else
+					{
+						$combined_where = '('.$resultRow->sql_where.')';
+						//$search_query = '#'.$array_id[$i];
+					}	
+				}
+				$sample = $combined_where;
+			}
+			else
+			{	
+				if(strpos($sample,'match'))
+				{
+					$bits = explode(' ', $sample);
+					foreach($bits as $bit)
+					{
+						if(!strpos($bit,"match") && !strpos($bit,"[") && !strpos($bit,"]") ) 
+				    	{
+				    		if($bit=='and'||$bit=='or')
+				    		{
+				    			$newquery[] = $bit;	
+				    		}
+				    		else
+				    		{
+				    			$newquery[] = "'".trim($bit)."'";
+				    		}
+				    	}
+				    	else
+				    	{
+				    		$newquery[] = $bit;
+				    	}
+					}
+					$newquery = implode(' ', $newquery);
+					$newquery = str_replace('[', "`", $newquery);
+					$newquery = str_replace(']match', "` =", $newquery);
+					$newquery = str_replace('] match', "` =", $newquery);
+				}
+				if(!empty($newquery))
+				{
+					$sample = $newquery;
+					$newquery = '';
+				}
+				if(strpos($sample,'contains') )
+				{
+					$bits = explode(' ', $sample);
+					$newquery = array();
+					foreach($bits as $bit)
+					{
+						if(!strpos($bit,"contains") && !strpos($bit,"[") && !strpos($bit,"]")) 
+				    	{
+				    		if($bit=='and'||$bit=='or')
+				    		{
+				    			$newquery[] = $bit;	
+				    		}
+				    		else
+				    		{
+				    			$newquery[] = "'%".trim($bit)."%'";
+				    		}	
+				    	}
+				    	else
+				    	{
+				    		$newquery[] = $bit;
+				    	}
+					}
+					$newquery = implode(' ', $newquery);
+					$newquery = str_replace('[', "`", $newquery);
+					$newquery = str_replace(']contains', "` like ", $newquery);
+					$newquery = str_replace('] contains', "`  like ", $newquery);
+				}
+				if(!empty($newquery))
+				{
+					$sample = $newquery;
+					$newquery = '';
+				}
+				if(strpos($sample,'>') || strpos($sample,'<') || strpos($sample,'=') )
+				{
+					$newquery = str_replace('[', "`", $sample);
+					$newquery = str_replace(']', "`", $newquery);
+				}
+				if(!empty($newquery))
+				{
+					$sample = $newquery;
+					$newquery = '';
+				}
+				if(strpos($sample,'[') || strpos($sample,']'))
+				{ 
+					echo $sample;
+					$bits = explode(' ', $sample);
+					$newquery = array();
+					foreach($bits as $bit)
+					{
+						if(strpos($bit,"[") || strpos($bit,"]")) 
+				    	{
+				    		if($bit=='and'||$bit=='or')
+				    		{
+				    			$newquery[] = $bit;	
+				    		}
+				    		else
+				    		{
+				    			$bit_arr = explode(']', $bit);
+				    			echo '<pre>';
+				    			print_r($bit_arr);
+				    			$newquery[] = str_replace('[', "`", $bit_arr[0])."` LIKE '%".trim($bit_arr[1])."%'";
+				    		}	
+				    	}
+				    	else
+				    	{
+				    		$newquery[] = $bit;
+				    	}
+					}
+					$newquery = implode(' ', $newquery);
+				}
+				if(!empty($newquery))
+				{
+					$sample = $newquery;
+					$newquery = '';
+				}
+				if(strpos($sample,'null'))
+				{
+					$sample = str_replace('=null', " IS NULL ", $sample);
+				}
+			}	
+			$sql = "SELECT * FROM `tb_journal` WHERE $sample";
+			$query = $this->db->query($sql);
+			$result = $this->db->query($sql);
+			$journal_data = $result->result();
+			$count = count($journal_data);
+			$sess=$this->session->userdata('login_data');
+			$user_name = $sess['user_fname'].' '.$sess['user_lname'];
+			$sql_uid = uniqid();
+			$sql_datetime = date('Y-m-d H:i:s');
+			$sql_temp_data = array(
+				'sql_uid' =>$sql_uid,
+				'user_uid_temp'=>$sess['user_uid'],
+				'query'=>$search_query,
+				'sql_where'=>$sample,
+				'sql_query'=>$sql,
+				'date_time'=>$sql_datetime,
+				'total_result'=>$count
+			);
+			$this->CM->insertData('tb_temp_sql',$sql_temp_data);
+
+
+			$sql_log_data = array(
+				'unique_id'=>uniqid(),
+				'query_id' =>$sql_uid,
+				'user_id'=>$sess['user_uid'],
+				'user_name'=>$user_name,
+				'query'=>$search_query,
+				'sql_query'=>$sql,
+				'datetime_created'=>$sql_datetime,
+				'total_result'=>$count
+			);
+			$this->CM->insertData('tb_activity_log_query',$sql_log_data);
+			$data['search_query'] = $search_query;
+			$data['journal_data'] = $journal_data;
+		}
+		else
+		{
+			echo 'NO FILTER';
+		}
+		
+	}
 	public function journalRecords()
 	{
 		$data['journal_data'] = $this->CM->getData('tb_journal');		
@@ -156,122 +495,30 @@ class Dashboard extends CI_Controller {
 
 	public function import()
 	{
-
 		$data['users'] = $this->CM->getData('tb_users');		
 		$this->load->view('import',$data);				
 	}	
-	public function importFile(){
-  
-      	if ($this->input->post('submit')) 
-      	{
-              
-           	$config['upload_path'] = 'assets/uploads/'; 
-	         $config['allowed_types'] = 'csv'; 
-	         $config['max_size'] = '1000'; // max_size in kb 
-	         $config['file_name'] = $_FILES['uploadFile']['name'];
-
-	         // Load upload library 
-	         $this->load->library('upload',$config); 
-	 
-	         // File upload
-	         $column = array('');
-	         echo 'test2222';  
-	        if($this->upload->do_upload('uploadFile'))
-	        { 
-	        	echo 'test';  
-	            // Get data about the file
-	            $uploadData = $this->upload->data(); 
-	            // print_r($uploadData);
-	            $filename = $uploadData['file_name'];
-
-	            // Reading file
-	            $file = fopen("assets/uploads/".$filename,"r");
-	            $i = 0;
-	            $numberOfFields = 43; // Total number of fields
-	           echo 'test1';die;
-	            while (($filedata = fgetcsv($file, 1000, ",")) !== FALSE) 
-	            {
-	            	$main_array = array();
-	               $num = count($filedata );
-	               if($i>0)
-	               {
-	               		$main_array['unique_id'] = $filedata[0];
-	               		$main_array['topic'] = $filedata[1];
-	               		$main_array['in_pubmed'] = $filedata[2];
-	               		$main_array['nlm_id'] = $filedata[3];
-	               		$main_array['journal'] = $filedata[4];
-	               		$main_array['counts'] = $filedata[5];
-	               		$main_array['start_year'] = $filedata[6];
-	               		$main_array['end_year'] = $filedata[7];
-	               		$main_array['pubmed_journal_status'] = $filedata[29];
-	               		$main_array['pubmed_start_year'] = $filedata[30];
-	               		$main_array['pubmed_end_year'] = $filedata[31];
-	               		$main_array['medline_journal_status'] = $filedata[32];
-	               		$main_array['medline_start_year'] = $filedata[33];
-	               		$main_array['medline_end_year'] = $filedata[34];
-	               		$main_array['url_cnki'] = $filedata[8];
-	               		$main_array['url_caod'] = $filedata[9];
-	               		$main_array['caod_coverage_start_year'] = $filedata[10];
-	               		$main_array['caod_coverage_end_year'] = $filedata[11];
-	               		$main_array['url'] = $filedata[12];
-	               		$main_array['archive_coverage_start_year'] = $filedata[27];
-	               		$main_array['archive_coverage_end_year'] = $filedata[28];
-	               		$main_array['content'] = $filedata[13];
-	               		$main_array['login'] = $filedata[14];
-
-	               		$main_array['free_pay'] = $filedata[15];
-	               		$main_array['language'] = $filedata[16];
-	               		$main_array['notes'] = $filedata[17];
-	               		$main_array['print_issn_nlm'] = $filedata[18];
-	               		$main_array['electronic_issn_nlm'] = $filedata[19];
-	               		$main_array['linking_issn_nlm'] = $filedata[20];
-	               		$main_array['mesh'] = $filedata[21];
-	               		$main_array['indexed_nlm'] = $filedata[22];
-	               		$main_array['indexed_embase'] = $filedata[23];
-	               		$main_array['indexed_embase_nlm'] = $filedata[24];
-	               		$main_array['not_indexed_nlm_and_embase'] = $filedata[25];
-	               		$main_array['indexed_nlm_not_in_embase'] = $filedata[26];
-	               		$main_array['pmc_journal_status'] = $filedata[35];
-	               		$main_array['pmc_start_year'] = $filedata[36];
-	               		$main_array['pmc_end_year'] = $filedata[37];
-	               		$main_array['pmc_free_access'] = $filedata[38];
-	               		$main_array['pmc_journal_URL'] = $filedata[39];
-	               		$this->CM->insertData('tb_journal',$main_array);
-		                $importData_arr[$i] = $main_array;
-		            }
-		            // $importData_arr[] = $main_array;
-	               $i++;
-	            }
-	            echo '<pre>';
-	            print_r($importData_arr);
-	              
-	        }
-	        die;  
-    	}
-        $this->load->view('import');
+	
+    public function update_password($userid)
+    {
+    	if($this->input->post('newpassword'))
+    	{
+    		$user_password = $this->input->post('newpassword');
+    		$inserArray = array(
+			 	'user_password'=>$user_password,
+			 	'user_encrypted'=>md5($user_password)
+		 	);
+		 	$where_array = array('user_uid'=>$userid);
+		 	$this->CM->updateData('tb_users',$inserArray,$where_array);
+		 }
+    	$this->load->view('users_profile');
     }
 
-    public function autoSearch()
+    public function queryLog()
     {
-    	$searchVal = $this->input->post('searchVal');
-    	//$sql = "SELECT * FROM `tb_journal` WHERE topic + language + in_pubmed  LIKE '%".$searchVal."%';";
-    	$sql = "SELECT * FROM `tb_journal` WHERE 
-    									`topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR `topic` LIKE '%".$searchVal."%' 
-    									OR ";
-    	echo $sql;
-    	
-
+    	$query_activity_log = $this->CM->getData('tb_activity_log_query','','datetime_created','DESC');
+    	$data['query_activity_log'] = $query_activity_log;
+    	$this->load->view('query_log',$data);
     }
     
 }
