@@ -10,8 +10,8 @@
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="<?php echo  base_url()?>assets/img/favicon.png" rel="icon">
-  <link href="<?php echo  base_url()?>assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="<?php echo  base_url()?>/assets/img/favicon.png" rel="icon">
+  <link href="<?php echo  base_url()?>/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -43,8 +43,8 @@
             <div class="col-lg-4 col-md-6 d-flex flex-column align-items-center justify-content-center">
 
               <div class="d-flex justify-content-center py-4">
-                <a href="index.html" class="logo d-flex align-items-center w-auto">
-                  <img src="assets/img/logo.png" alt="">
+                <a href="#" class="logo d-flex align-items-center w-auto">
+                  <img src="<?php echo  base_url()?>/assets/img/logo.png" alt="">
                   <span class="d-none d-lg-block">Crystallise</span>
                 </a>
               </div><!-- End Logo -->
@@ -57,7 +57,20 @@
                     <h5 class="card-title text-center pb-0 fs-4">Login to Your Account</h5>
                     <p class="text-center small">Enter your email & password to login</p>
                   </div>
-
+                  <?php 
+                  if($this->session->flashdata('success_msg')){ ?>
+                    <div class="alert alert-success" role="alert">
+                      <?php echo $this->session->flashdata('success_msg'); ?>
+                    </div>
+                    <?php  
+                  }
+                  if($this->session->flashdata('error_msg')){ ?>
+                    <div class="alert alert-danger" role="alert">
+                      <?php echo $this->session->flashdata('error_msg'); ?>
+                    </div>
+                    <?php  
+                  }
+                   ?>
                   <form class="row g-3 needs-validation" novalidate action="" method="post">
 
                     <div class="col-12">
@@ -69,11 +82,20 @@
                       </div>
                     </div>
 
-                    <div class="col-12">
+                    <div class="row-12">
+                      <label for="validationDefaultUsername" class="form-label">Password</label>
+                      <div class="input-group" id="show_hide_password">
+                        <span class="input-group-text" id="inputGroupPrepend2"><i class="bi bi-eye-slash" aria-hidden="true"></i></span>
+                        <input type="password" name="password" class="form-control" id="password" placeholder="Please enter your password"  required autocomplete="off">
+                          <div class="invalid-feedback">Please enter your password minimum 8 character!</div>
+                      </div>
+                    </div>
+                    
+                    <!-- <div class="col-12">
                       <label for="yourPassword" class="form-label">Password</label>
                       <input type="password" name="password" class="form-control" id="yourPassword" placeholder="Please enter your password" required>
                       <div class="invalid-feedback">Please enter your password!</div>
-                    </div>
+                    </div> -->
 
                     <!-- <div class="col-12">
                       <div class="form-check">
@@ -84,14 +106,18 @@
                     <div class="col-12">
                       <button class="btn btn-primary w-100" type="submit">Login</button>
                     </div>
-                    <!-- <div class="col-12">
-                      <p class="small mb-0">Don't have account? <a href="pages-register.html">Create an account</a></p>
-                    </div> -->
+                    <div class="col-12">
+                      <p class="small mb-0">Don't have account? <a href="<?php echo  site_url('register'); ?>">Create an account</a></p>
+                    </div>
                   </form>
 
                 </div>
               </div>
-
+              <div class="credits">
+                Designed by <a href="https://www.crystallise.com/">Crystallise</a>
+              </div>
+              </div>
+              
              
             </div>
           </div>
@@ -116,7 +142,24 @@
 
   <!-- Template Main JS File -->
   <script src="<?php echo  base_url()?>assets/js/main.js"></script>
-
+   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+<script type="text/javascript">
+  $(document).ready(function() {
+    $("#inputGroupPrepend2").on('click', function(event) {
+      //alert()
+        event.preventDefault();
+        if($('#show_hide_password input').attr("type") == "text"){
+            $('#show_hide_password input').attr('type', 'password');
+            $('#show_hide_password i').addClass( "bi-eye-slash" );
+            $('#show_hide_password i').removeClass( "bi-eye" );
+        }else if($('#show_hide_password input').attr("type") == "password"){
+            $('#show_hide_password input').attr('type', 'text');
+            $('#show_hide_password i').removeClass( "bi-eye-slash" );
+            $('#show_hide_password i').addClass( "bi-eye" );
+        }
+    });
+});
+</script>
 </body>
 
 </html>

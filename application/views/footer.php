@@ -1,4 +1,4 @@
-<footer id="footer" class="footer">
+<footer id="footer" class="footer" style="margin-left:0px;">
     <div class="copyright">
       &copy; Copyright <strong><span>Crystallise</span></strong>. All Rights Reserved
     </div>

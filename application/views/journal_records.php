@@ -36,6 +36,24 @@
 .dropdown:hover .dropdown-content {display: block;}
 
 .dropdown:hover .dropbtn {background-color: #3e8e41;}
+th
+{
+  color:#008080;
+}
+.deletesingle
+{
+  border: none;
+    background: none;
+    padding: 0px;
+    margin: 0px;
+}
+.getRow
+{
+  border: none;
+  background: none;
+  padding: 0px;
+  margin: 0px; 
+}
 </style>
    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"> -->
     <!-- <link rel="stylesheet" href="https://cdn.datatables.net/plug-ins/1.10.13/features/mark.js/datatables.mark.min.css"> -->
@@ -46,171 +64,66 @@
 
   <main id="main" class="main" style="margin-left:0px;">
     
-    <div class="alert alert-danger" role="alert">
+    <!-- <div class="alert alert-danger" role="alert">
       Please provide feedback for PUMA Database <a href="https://forms.office.com/pages/responsepage.aspx?id=48TPkEN-PUyFfmbfrxno_f888Njnt-VLq4hZRTyZKm1UNzJOVzZYWklUV0VWSFZQS1ExNjlFM1k5Ry4u" target="_blank" class="alert-link">Click Here</a>. Give it a click if you like.
-    </div>
-    <div class="pagetitle">
-      <h1>Journal Records</h1>
-      <nav>
-        <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item">Records</li>
-          <li class="breadcrumb-item active">General</li>
-        </ol>
-      </nav>
-    </div><!-- End Page Title -->
-
+    </div> -->
     <section class="section">
       <div class="row">
-        <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card sales-card">
-
-                <div class="card-body">
-                  <h5 class="card-title">Total Journals 
-                    <!-- <span>| Today</span> -->
-                  </h5>
-
-                  <div class="d-flex align-items-center"  style="font-size: 30px;">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <!-- <i class="bi bi-cart"></i> -->
-                    </div>
-                    <div class="ps-3">
-                      <!-- <h6>145</h6> -->
-                      <span class="text-success small pt-1 fw-bold"><?php echo $journal_data_count; ?></span> 
-                      <!-- <span class="text-muted small pt-2 ps-1">increase</span> -->
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Sales Card -->
-
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
-              <div class="card info-card revenue-card">
-                <div class="card-body">
-                  <h5 class="card-title">Filtered Journal
-                    <!-- <span>| This Month</span> -->
-                  </h5>
-
-                  <div class="d-flex align-items-center"  style="font-size: 30px;">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <!-- <i class="bi bi-currency-dollar"></i> -->
-                    </div>
-                    <div class="ps-3">
-                      <!-- <h6>$3,264</h6> -->
-                      <span class="text-success small pt-1 fw-bold"><?php echo $filtered_count; ?></span> <span class="text-muted small pt-2 ps-1"></span>
-
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div><!-- End Revenue Card -->
-
-            <!-- Customers Card -->
-            <!--<div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-                <div class="card-body">
-                  <h5 class="card-title">Export All 
-                   <span>| This Year</span>
-                  </h5>
-
-                  <div class="d-flex align-items-center" style="font-size: 30px;">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                       <i class="bi bi-people"></i>
-                    </div>
-                    <div >
-                       <h6>1244</h6>
-                      <span class="text-danger  pt-1 fw-bold"><a href= ""><i class="bi bi-arrow-bar-down"></i></a></span> 
-
-                    </div>
-                  </div>
-
-                </div>
-              </div>
-
-            </div> -->
-            <!-- End Customers Card -->
-        <div class="col-lg-12">
+         <div class="col-lg-12">
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Filters</h5>
+              <h5 class="card-title">Search Item</h5>
 
               <form class="row g-3" method="post" action="" id="form_search">
-                <div class="col-md-5">
-                  <select id="filter_option" class="form-select" name="filter_option" required>
-                    <option selected="">Select Options</option>
-                    <option value="Topic" <?php if($filter_option=='Topic'){ echo 'selected';} ?>>Topic</option>
-                    <option value="In_Pubmed" <?php if($filter_option=='In_Pubmed'){ echo 'selected';} ?>>In PubMed</option>
-                    <option value="counts" <?php if($filter_option=='counts'){ echo 'selected';} ?>>Counts</option>
-                    <option value="PubMed_Start_Year" <?php if($filter_option=='PubMed_Start_Year'){ echo 'selected';} ?>>PubMed Start Year</option>
-                    <option value="PubMed_End_Year" <?php if($filter_option=='PubMed_End_Year'){ echo 'selected';} ?>>PubMed End Year</option>
-                    <option value="Archive_Coverage_Start_Year" <?php if($filter_option=='Archive_Coverage_Start_Year'){ echo 'selected';} ?>>Archive Coverage Start Year</option>
-                    <option value="Archive_Coverage_END" <?php if($filter_option=='Archive_Coverage_END'){ echo 'selected';} ?>>Archive Coverage End Year</option>
-                    <option value="Content" <?php if($filter_option=='Content'){ echo 'selected';} ?>>Content</option>
-                    <option value="Login" <?php if($filter_option=='Login'){ echo 'selected';} ?>>Login</option>
-                    <option value="Free_Pay" <?php if($filter_option=='Free_Pay'){ echo 'selected';} ?>>Free/Pay</option>
-                    <option value="Language" <?php if($filter_option=='Language'){ echo 'selected';} ?>>Language</option>
-                    <option value="MeSH" <?php if($filter_option=='MeSH'){ echo 'selected';} ?>>MeSH</option>
-                    <option value="Indexed_NLM" <?php if($filter_option=='Indexed_NLM'){ echo 'selected';} ?>>Indexed NLM</option>
-                    <option value="Indexed_Embase" <?php if($filter_option=='Indexed_Embase'){ echo 'selected';} ?>>Indexed Embase</option>
-                    <option value="Indexed_Embase_NLM" <?php if($filter_option=='Indexed_Embase_NLM'){ echo 'selected';} ?>>Indexed Embase NLM</option>
-                    <option value="Not_Indexed_NLM_and_Embase" <?php if($filter_option=='Not_Indexed_NLM_and_Embase'){ echo 'selected';} ?>>Not Indexed NLM and Embase</option>
-                    <option value="Indexed_NLM_not_in_Embase" <?php if($filter_option=='Indexed_NLM_not_in_Embase'){ echo 'selected';} ?>>Indexed NLM not in Embase</option>
+                <div class="row">
+                  <div class="col-md-10">
+                    <input class="form-control" id="search_query" value="<?php echo $search_query; ?>" placeholder="[coulmn_heading] value_needs to be search, Ex. [language]English" name="search_query">
+                  </div>
+                  <div class="col-md-1">
+                    <button type="submit" id="submit" value="submit" class="btn btn-primary" >Submit</button>
+                  </div>
 
-                    <!-- <option value="topic" <?php if($filter_option=='topic'){ echo 'selected';} ?>>Topic</option>
-                    <option value="in_pubmed"  <?php if($filter_option=='in_pubmed'){ echo 'selected';} ?>>In PubMed</option>
-                    <option value="counts"  <?php if($filter_option=='counts'){ echo 'selected';} ?>>Counts</option>
-                    <option value="pubmed_start_year"  <?php if($filter_option=='pubmed_start_year'){ echo 'selected';} ?>>PubMed Start Year</option>
-                    <option value="pubmed_end_year"  <?php if($filter_option=='pubmed_end_year'){ echo 'selected';} ?>>PubMed End Year</option>
-                    <option value="archive_coverage_start_year"  <?php if($filter_option=='archive_coverage_start_year'){ echo 'selected';} ?>>Archive Coverage Start Year</option>
-                    <option value="archive_coverage_end_year"  <?php if($filter_option=='archive_coverage_end_year'){ echo 'selected';} ?>>Archive Coverage End Year</option>
-                    <option value="content"  <?php if($filter_option=='content'){ echo 'selected';} ?>>Content</option>
-                    <option value="login"  <?php if($filter_option=='login'){ echo 'selected';} ?>>Login</option>
-                    <option value="free_pay"  <?php if($filter_option=='free_pay'){ echo 'selected';} ?>>Free/Pay</option>
-                    <option value="language" <?php if($filter_option=='language'){ echo 'selected';} ?>>Language</option>
-                    <option value="mesh" <?php if($filter_option=='mesh'){ echo 'selected';} ?>>MeSH</option>
-                    <option value="indexed_nlm" <?php if($filter_option=='indexed_nlm'){ echo 'selected';} ?>>Indexed NLM</option>
-                    <option value="indexed_embase" <?php if($filter_option=='indexed_embase'){ echo 'selected';} ?>>Indexed Embase</option>
-                    <option value="indexed_embase_nlm" <?php if($filter_option=='indexed_embase_nlm'){ echo 'selected';} ?>>Indexed Embase NLM</option>
-                    <option value="not_indexed_nlm_and_embase" <?php if($filter_option=='not_indexed_nlm_and_embase'){ echo 'selected';} ?>>Not Indexed NLM and Embase</option>
-                    <option value="indexed_nlm_not_in_embase" <?php if($filter_option=='indexed_nlm_not_in_embase'){ echo 'selected';} ?>>Indexed NLM not in Embase</option> -->
-                  </select>
-                </div>  
-                <div class="col-md-5">
-                  <input type="text" class="form-control" name="filter_value" id = "filter_value" value="<?php echo $filter_value; ?>" placeholder="Text to search">
-                </div>
-                
-                <div class="col-md-2">
-                  <div class="dropdown">
-                    <button class="dropbtn" id="add_btn" value="ADD">ADD</button>
-                    <div class="dropdown-content">
-                      <li  id="add_with_and">Add with AND</li>
-                      <li  id="add_with_or">Add with OR</li>
-                      <li  id="add_with_not">Add with NOT</li>
-                    </div>
+                  <div class="col-md-1">
+                    <a href="<?php echo site_url('dashboard/clearQuery') ?>"  >Clear Search</a>
                   </div>
                 </div>
-
-                <div class="col-md-10">
-                  <textarea class="form-control" id="query_box" name="query_box"></textarea>
-                </div>
-                <div class="col-md-2">
-                  <button type="submit" id="submit_form" class="btn btn-primary" >Submit</button>
-                  <!-- <button type="reset" class="btn btn-secondary">Reset</button> -->
-                </div>
               </form>
-
+              <br>
+              <?php if(count($sql_temp)>0) { ?>
+              <div class="col-md-11">
+              <ul class="list-group">
+                <?php $i =0; 
+                foreach ($sql_temp as $key) { $i++;
+                ?>
+                <li class="list-group-item"><button class="deletesingle" value="<?php echo $key->sql_uid; ?>"><i class="bi bi-trash" style="margin-right:15px;" ></i></button><?php //echo $key->date_time; ?>#<?php echo $i; ?>
+                  
+                  <input class="form-check-input me-1" name="sql_ids" type="checkbox" value="<?php echo $key->sql_uid; ?>" id="<?php echo $i; ?>">
+                  <span class="col-md-8"><?php echo $key->query; ?></span>
+                  <span class="float-right" style="float:right;">
+                    <form action="" method="post">
+                      <input type="hidden" name="getSingleRecord" value="<?php echo $key->sql_uid; ?>">
+                      <button type="submit" class="getRow" value="<?php echo $key->sql_uid; ?>" style="color:blue;"><?php echo $key->total_result; ?></button>
+                    </form>
+                  </span>
+                  
+                </li>
+                <br>
+              <?php } ?>
+              </ul>
             </div>
+             <div class="row">
+              <div class="col-md-2"><button id="delete_multiple" class="btn btn-primary">Delete Mutiple</button></div>
+              <div class="col-md-1"><button id="multiple_and" class="btn btn-primary">AND</button></div>
+              <div class="col-md-1"><button id="multiple_or" class="btn btn-primary">OR</button></div>
+             </div> 
+            <?php } ?>
+            </div>
+
         </div>
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">Journal Records</h5>
+              <h5 class="card-title">Results</h5>
 
               <!-- Default Table -->
               <table class="table table-striped table-bordered table-sm" id="example" style="width:100%;font-size:12px;">
@@ -267,7 +180,7 @@
                   ?>
                                   
                   <tr>
-                    <th scope="row"><?php echo $i; ?></th>
+                    <td scope="row"><?php echo $i; ?></td>
                    
                     <td><?php echo ucfirst($rec->in_pubmed); ?></td>
                     <td><?php echo ucfirst($rec->journal); ?></td>
@@ -347,6 +260,13 @@
 <script type="text/javascript">
 
 $(document).ready(function () {
+  var d = new Date();
+
+var month = d.getMonth()+1;
+var day = d.getDate();
+var output = d.getFullYear() + '_' +
+    ((''+month).length<2 ? '0' : '') + month + '_' +
+    ((''+day).length<2 ? '0' : '') + day;
      var table = $('#example').DataTable({
         scrollX: true,
         mark: true,
@@ -361,11 +281,13 @@ $(document).ready(function () {
             {
                extend:    'excelHtml5',
                 text:      'Export Excel',
+                 title: 'PUMA_search_filter_'+output,
                 titleAttr: 'Excel'
             },
             {
                 extend:    'csvHtml5',
                 text:      'Export CSV',
+                 title: 'PUMA_search_filter_'+output,
                 titleAttr: 'CSV'
             }
         ]
@@ -377,121 +299,122 @@ $(document).ready(function () {
         body.highlight( table.search() );  
     } );
 });
-//   $(document).ready( function () {
-//     var table = $('#example').DataTable();
- 
-//     table.on( 'draw', function () {
-//         var body = $( table.table().body() );
- 
-//         body.unhighlight();
-//         body.highlight( table.search() );  
-//     } );
-// } );
-
-  $('#add_with_and').click(function(){
-    $("#add_btn").html('AND');
-    $("#add_btn").attr('value', 'AND');
-    var filter_option = $('#filter_option').val();
-    var filter_value = $('#filter_value').val();
-    var txt = $("#query_box").val(); 
-    var queryBox = '';
-    if(filter_option!='' && filter_value!='')
-    {  
-      if(txt)
-      {
-        var queryBox = txt+' AND (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-      }
-      else
-      {
-        var queryBox = '(['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox);
-      }      
-    }  
-  });
-
-  $('#add_with_or').click(function(){
-    $("#add_btn").html('OR');
-    $("#add_btn").attr('value', 'OR');
-    var filter_option = $('#filter_option').val();
-    var filter_value = $('#filter_value').val();
-    var txt = $("#query_box").val(); 
-    var queryBox = '';
-    if(filter_option!='' && filter_value!='')
-    {  
-      if(txt)
-      {
-        var queryBox = txt+' OR (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-      }
-      else
-      {
-        var queryBox = '(['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox);
-      }      
-    }  
-  });
-
-  $('#add_with_not').click(function(){
-    $("#add_btn").html('NOT');
-    $("#add_btn").attr('value', 'NOT');
-    var filter_option = $('#filter_option').val();
-    var filter_value = $('#filter_value').val();
-    var txt = $("#query_box").val(); 
-    var queryBox = '';
-    if(filter_option!='' && filter_value!='')
-    {  
-      if(txt)
-      {
-        var queryBox = txt+' OR (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-      }
-      else
-      {
-        var queryBox = '(['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox);
-      }      
-    }
-  });
-
-  $('#submit_form').click(function(e){
-    e.preventDefault();
-    var add_btn = $("#add_btn").val();
-    //alert(add_btn);
-    var filter_option = $('#filter_option').val();
-    var filter_value = $('#filter_value').val();
-    var txt = $("#query_box").val(); 
-    var queryBox = '';
-     if(add_btn=='ADD')
-     {
-        var queryBox = '(['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox);
-     }
-     if(add_btn=='AND')
-     {
-        var queryBox = txt+' AND (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-     }
-     if(add_btn=='OR')
-     {
-        var queryBox = txt+' OR (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-     }
-     if(add_btn=='NOT')
-     {
-        var queryBox = txt+' NOT (['+filter_option+']'+filter_value+')';
-        $("#query_box").html(queryBox); 
-     }
-     if(queryBox!="")
-     {
-      //alert('submit');
-      $('#form_search').unbind('submit').submit();
-     }
-  });
-
-
 </script>
+<script>
 
+
+  $(document).ready(function(){
+
+  $("#submit").click(function(event){
+    //event.preventDefault()
+    var search_query = $("#search_query").val();
+    $.ajax({
+       url: "<?php echo site_url('dashboard/searchItemResult')?>",
+       type:'post',
+       data:{search_query:search_query},
+       success:function(response){
+        //alert(response);
+          location.reload(); // reloading page
+       }
+    });
+ 
+  });
+});
+
+ $('.deletesingle').click(function(){
+    var sql_uid = $(this).val();
+    var confirmation = confirm("are you sure you want to remove the search item?");
+    if (confirmation) {
+      $.ajax({
+         url: "<?php echo site_url('dashboard/DeleteSingleSearch')?>",
+         type:'post',
+         data:{sql_uid:sql_uid},
+         success:function(response){
+            location.reload(); // reloading page
+         }
+      });
+    }  
+  });
+
+//for delete jquery
+$('#delete_multiple').click(function(){
+  var checkboxValues = [];
+  var checkboxValuesID = [];
+  $('input[name=sql_ids]:checked').map(function() {
+              checkboxValues.push($(this).val());
+              checkboxValuesID.push($(this).attr("id"));
+  });
+  if(checkboxValues)
+  {
+    var confirmation = confirm("are you sure you want to remove the search item?");
+    if (confirmation) {
+      // execute ajax
+      $.ajax({
+       url: "<?php echo site_url('dashboard/deleteSearchItem')?>",
+       type:'post',
+       data:{checkboxValues:checkboxValues,checkboxValuesID:checkboxValuesID},
+       success:function(response){
+        //alert(response);
+          location.reload(); // reloading page
+       }
+      });
+        
+    }
+  }
+});
+
+
+// jquery for AND multiple
+$('#multiple_and').click(function(){
+  var checkboxValues = [];
+  var checkboxValuesID = [];
+  $('input[name=sql_ids]:checked').map(function() {
+              checkboxValues.push($(this).val());
+              checkboxValuesID.push($(this).attr("id"));
+  });
+  // alert(checkboxValues);
+  // alert(checkboxValuesID);
+  if(checkboxValues)
+  {
+    $.ajax({
+     url: "<?php echo site_url('dashboard/AndSearchItem')?>",
+     type:'post',
+     data:{checkboxValues:checkboxValues,checkboxValuesID:checkboxValuesID},
+     success:function(response){
+        //alert(response);
+        location.reload(); // reloading page
+     }
+    });
+  }
+});
+
+//jquery for OR 
+$('#multiple_or').click(function(){
+  var checkboxValues = [];
+  var checkboxValuesID = [];
+  $('input[name=sql_ids]:checked').map(function() {
+              checkboxValues.push($(this).val());
+              checkboxValuesID.push($(this).attr("id"));
+  });
+  if(checkboxValues)
+  {
+    $.ajax({
+     url: "<?php echo site_url('dashboard/OrSearchItem')?>",
+     type:'post',
+     data:{checkboxValues:checkboxValues,checkboxValuesID:checkboxValuesID},
+     success:function(response){
+        //alert(response);
+        location.reload(); // reloading page
+     }
+    });
+  }
+});
+</script>
+<script>
+if ( window.history.replaceState ) {
+  window.history.replaceState( null, null, window.location.href );
+}
+</script>
 </body>
 
 </html>
