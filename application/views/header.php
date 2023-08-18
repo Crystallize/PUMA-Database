@@ -57,7 +57,7 @@
 
         
         <li class="nav-item dropdown pe-3">
-          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="https://forms.office.com/Pages/ResponsePage.aspx?id=48TPkEN-PUyFfmbfrxno_f888Njnt-VLq4hZRTyZKm1UNzJOVzZYWklUV0VWSFZQS1ExNjlFM1k5Ry4u" target="_blank">
+          <a class="nav-link nav-profile d-flex align-items-center pe-0" href="https://forms.office.com/e/EiJnAsAGJG" target="_blank">
             <span class="d-none d-md-block ">Feedback Form</span>
           </a>
         </li>
@@ -71,7 +71,7 @@
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" aria-expanded="false">
             <span class="d-none d-md-block dropdown-toggle ps-2"><?php
-              $sess_data = $this->session->userdata('login_data');
+              $sess_data = $this->session->userdata('login_data_puma');
               echo ucfirst($sess_data['user_fname']).' '.ucfirst($sess_data['user_lname']);
                ?></span>
           </a><!-- End Profile Iamge Icon -->
