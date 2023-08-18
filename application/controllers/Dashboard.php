@@ -16,7 +16,7 @@ class Dashboard extends CI_Controller
 		// $this->load->library('encrypt');
 		$this->load->model('Common_model','CM');
 		#checking user is logged in or not
-		if($this->session->userdata('login_data')=='')
+		if($this->session->userdata('login_data_puma')=='')
 		{
 			redirect('login');
 		}
@@ -26,7 +26,7 @@ class Dashboard extends CI_Controller
 	public function index()
 	{
 		#getting session data
-		$sess=$this->session->userdata('login_data');
+		$sess=$this->session->userdata('login_data_puma');
 		$user_uid_temp=$sess['user_uid'];
 		$where = "`user_uid_temp`='$user_uid_temp'";	
 		#get data of boolean search for logged in user
@@ -77,7 +77,7 @@ class Dashboard extends CI_Controller
 	//remove searched result 
 	public function clearQuery()
 	{
-	    $sess=$this->session->userdata('login_data');
+	    $sess=$this->session->userdata('login_data_puma');
 		$user_uid_temp=$sess['user_uid'];
 		$where = "`user_uid_temp`='$user_uid_temp'";	
 	    $this->CM->deleteData('tb_temp_sql',$where);
@@ -143,7 +143,7 @@ class Dashboard extends CI_Controller
 		$result = $this->db->query($sql);
 		$journal_data = $result->result();
 		$count = count($journal_data);
-		$sess=$this->session->userdata('login_data');
+		$sess=$this->session->userdata('login_data_puma');
 		$user_name = $sess['user_fname'].' '.$sess['user_lname'];
 		$sql_uid = uniqid();
 		$sql_datetime = date('Y-m-d H:i:s');
@@ -205,7 +205,7 @@ class Dashboard extends CI_Controller
 		$result = $this->db->query($sql);
 		$journal_data = $result->result();
 		$count = count($journal_data);
-		$sess=$this->session->userdata('login_data');
+		$sess=$this->session->userdata('login_data_puma');
 		$user_name = $sess['user_fname'].' '.$sess['user_lname'];
 		$sql_uid = uniqid();
 		$sql_datetime = date('Y-m-d H:i:s');
@@ -300,7 +300,7 @@ class Dashboard extends CI_Controller
 					$between_op = ' and not ';
 					$between_op_search =  ' not ';
 				}
-				$sess=$this->session->userdata('login_data');
+				$sess=$this->session->userdata('login_data_puma');
 				$user_uid_temp=$sess['user_uid'];
 				$where = "`user_uid_temp`='$user_uid_temp'";
 				$all_query = $this->CM->getData('tb_temp_sql',$where);
@@ -451,7 +451,7 @@ class Dashboard extends CI_Controller
 			$result = $this->db->query($sql);
 			$journal_data = $result->result();
 			$count = count($journal_data);
-			$sess=$this->session->userdata('login_data');
+			$sess=$this->session->userdata('login_data_puma');
 			$user_name = $sess['user_fname'].' '.$sess['user_lname'];
 			$sql_uid = uniqid();
 			$sql_datetime = date('Y-m-d H:i:s');

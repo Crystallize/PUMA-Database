@@ -7,12 +7,14 @@ class Welcome extends CI_Controller {
     {
         parent::__construct();
         $this->load->database();
+        
 		$this->load->helper('url');
 		$this->load->helper('form');
 		$this->load->library('form_validation');
 		$this->load->library('session');
 		// $this->load->library('encrypt');
 		$this->load->model('Common_model','CM');
+		
     }
 
 	public function index()
@@ -22,6 +24,10 @@ class Welcome extends CI_Controller {
 
 	public function register()
 	{
+		if($this->session->userdata('login_data_puma')!='')
+		{
+			redirect('dashboard');
+		}
 		if($this->input->post())
 		{
 			$this->form_validation->set_rules('first_name', 'First Name', 'trim|required');
@@ -36,7 +42,12 @@ class Welcome extends CI_Controller {
 				$user_email = $this->input->post('email');
 				$user_password = $this->input->post('password');
 
-				$emailData = $this->CM->getRowData('tb_users',array('user_email'=>$user_email));
+				//04/07/2023 start
+				$logindb = $this->load->database('logindb', TRUE);
+				$sql = "select * from `tb_users` where `user_email`='$user_email'";
+				$emailData = $logindb->query($sql)->row();
+				//$emailData = $this->CM->getRowData('tb_users',array('user_email'=>$user_email));
+				//04/07/2023 end
 				if($emailData)
 				{
 					$this->session->set_flashdata('error_msg', 'Email already exist');
@@ -108,7 +119,12 @@ class Welcome extends CI_Controller {
 				    	print_r($this->email->print_debugger());
 		 			}
 		 
-		            $insertId = $this->CM->insertData('tb_users',$inserArray);
+		 			//04/07/2023 start
+					$logindb = $this->load->database('logindb', TRUE);
+					$insertId = $logindb->insert('tb_users',$inserArray);
+					//$insertId = $this->CM->insertData('tb_users',$inserArray);
+					//04/07/2023 end
+		            
 		            $this->session->set_flashdata('success_msg', 'Signup Successfully, please verify your email.');
 		            redirect('login');
 		        }
@@ -183,7 +199,13 @@ class Welcome extends CI_Controller {
 		if($this->input->post('resend_verify'))
 		{
 			echo 'test';
-			$emailData =  $this->db->get_where("tb_users",array('user_uid'=>$user_id))->row();#
+			
+			//04/07/2023 start
+			$logindb = $this->load->database('logindb', TRUE);
+			$sql = "select * from `tb_users` where `user_uid`='$user_id'";
+			$emailData = $logindb->query($sql)->row();
+			//$emailData =  $this->db->get_where("tb_users",array('user_uid'=>$user_id))->row();#
+			//04/07/2023 end
 			$user_email = $emailData->user_email;
 			
 			$message ='<!DOCTYPE html>
@@ -244,7 +266,13 @@ class Welcome extends CI_Controller {
 		}
 		else
 		{	
-			$emailData =  $this->db->get_where("tb_users",array('user_uid'=>$user_id))->row();
+			
+			//04/07/2023 start
+			$logindb = $this->load->database('logindb', TRUE);
+			$sql = "select * from `tb_users` where `user_email`='$user_email'";
+			$emailData = $logindb->query($sql)->row();
+			//$emailData =  $this->db->get_where("tb_users",array('user_uid'=>$user_id))->row();
+			//04/07/2023 end
 			if($emailData)
 			{
 				date_default_timezone_set("Europe/London");
@@ -260,7 +288,12 @@ class Welcome extends CI_Controller {
 					$update_data = array('email_authentication'=>'true');
 					$where = array('user_uid'=>$user_id);
 					$this->session->set_flashdata('success_msg', 'Your account verified!');
-					$this->CM->updateData('tb_users',$update_data,$where);
+					//04/07/2023 start
+					$logindb = $this->load->database('logindb', TRUE);
+					$logindb->where($where)->update('tb_users', $update_data);
+					//$this->CM->updateData('tb_users',$update_data,$where);
+					//04/07/2023 end
+					
 					redirect('login');
 				}
 				else
@@ -280,6 +313,10 @@ class Welcome extends CI_Controller {
 
 	public function login()
 	{
+		if($this->session->userdata('login_data_puma')!='')
+		{
+			redirect('dashboard');
+		}
 		if($this->input->post()){
 			$email = $this->input->post('email');
 			// $password = $this->input->post('password');
@@ -290,7 +327,15 @@ class Welcome extends CI_Controller {
 			
 			if ($this->form_validation->run() == 'TRUE')
      		{
-     			$login_result = $this->db->get_where("tb_users",array('user_email'=>$email))->row();
+     			//04/07/2023 start
+				$logindb = $this->load->database('logindb', TRUE);
+				$sql = "select * from `tb_users` where `user_email`='$email'";
+				
+				$login_result = $logindb->query($sql)->row();
+				
+				//$login_result = $this->db->get_where("tb_users",array('user_email'=>$email))->row();
+				//04/07/2023 end
+     			
      			
 				if($login_result && ($login_result->email_authentication == 'false'))
 				{
@@ -314,14 +359,14 @@ class Welcome extends CI_Controller {
 							);
 						
 						$_SESSION['email'] = $user_email;
-						$this->session->set_userdata('login_data',$sess_data);
+						$this->session->set_userdata('login_data_puma',$sess_data);
 						$this->session->set_flashdata('success','Login Successfuly.');
 						
 						redirect('dashboard');
 					}
 					else
 					{
-						$this->session->set_flashdata('error_msg', 'Please check your Email/Password');
+						$this->session->set_flashdata('error_msg', 'Please check your Email/Password11');
 						redirect('login');
 					}
 				}	
@@ -332,7 +377,7 @@ class Welcome extends CI_Controller {
 
 	public function logout()
     {
-    	$this->session->set_userdata('login_data','');
+    	$this->session->set_userdata('login_data_puma','');
     	redirect(site_url());
     }
 }

@@ -167,7 +167,7 @@ class QueryTest extends CI_Controller {
 			{
 				$between_op = ' or ';
 			}
-			$sess=$this->session->userdata('login_data');
+			$sess=$this->session->userdata('login_data_puma');
 			$user_uid_temp=$sess['user_uid'];
 			$where = "`user_uid_temp`='$user_uid_temp'";
 			$all_query = $this->CM->getData('tb_temp_sql',$where);
